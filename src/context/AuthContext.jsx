@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext(null);
 
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem("token"));
@@ -9,7 +11,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (token) {
-      fetch("http://localhost:5000/auth/me", {
+      fetch(`${API}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((r) => r.json())
@@ -17,7 +19,7 @@ export function AuthProvider({ children }) {
           if (data.user) setUser(data.user);
           else logout();
         })
-        .catch(() => logout())
+        .catch(() => setLoading(false))
         .finally(() => setLoading(false));
     } else {
       setLoading(false);

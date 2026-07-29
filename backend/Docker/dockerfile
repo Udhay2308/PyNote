@@ -1,0 +1,87 @@
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libgomp1 \
+    libffi-dev \
+    libssl-dev \
+    curl \
+    git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Core scientific packages
+RUN pip install --no-cache-dir \
+    numpy \
+    pandas \
+    matplotlib \
+    scipy \
+    scikit-learn \
+    statsmodels \
+    sympy
+
+# Visualization
+RUN pip install --no-cache-dir \
+    seaborn \
+    plotly \
+    pillow
+
+# Machine Learning
+RUN pip install --no-cache-dir \
+    xgboost \
+    lightgbm \
+    catboost
+
+# Deep Learning CPU
+RUN pip install --no-cache-dir \
+    torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+RUN pip install --no-cache-dir \
+    tensorflow-cpu \
+    keras
+
+# NLP
+RUN pip install --no-cache-dir \
+    nltk \
+    textblob \
+    wordcloud
+
+# Data & File handling
+RUN pip install --no-cache-dir \
+    openpyxl \
+    xlrd \
+    pyarrow \
+    h5py \
+    joblib \
+    tqdm
+
+# Networking
+RUN pip install --no-cache-dir \
+    requests \
+    httpx \
+    beautifulsoup4 \
+    lxml
+
+# Utilities
+RUN pip install --no-cache-dir \
+    python-dotenv \
+    pydantic \
+    arrow \
+    more-itertools \
+    toolz \
+    numba \
+    networkx \
+    faker \
+    tabulate \
+    colorama
+
+# Copy persistent kernel script
+COPY kernel.py /kernel.py
+
+RUN useradd -m -u 1000 sandbox
+USER sandbox
+
+WORKDIR /home/sandbox
+
+CMD ["python3", "/kernel.py"]

@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; ms-overflow-style: none; }
+
+.logout-card-wrapper {
+  position: relative;
+  padding: 2px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+
+/* Rotating golden border */
+.logout-card-wrapper::before {
+
+  content: "";
+
+  position: absolute;
+
+  inset: -80%;
+
+  background: conic-gradient(
+    from 0deg,
+    #B8860B,
+    #FFD700,
+    #FFF2A6,
+    #DAA520,
+    #FFD700,
+    #B8860B,
+    #8B6508,
+    #FFD700
+  );
+
+
+  animation: rotateGoldBorder 4s linear infinite;
+
+  opacity: 0;
+
+  transition: opacity .35s ease;
+
+}
+
+
+
+/* Inner dark card cover */
+.logout-card-wrapper::after {
+
+  content: "";
+
+  position: absolute;
+
+  inset: 2px;
+
+  background: #1A2233;
+
+  border-radius: 16px;
+
+  z-index: 0;
+
+}
+
+
+
+/* Show glowing border on hover */
+.logout-card-wrapper:hover::before {
+
+  opacity: 1;
+
+}
+
+
+
+/* Keep card content above gradient */
+.logout-card-wrapper > div {
+
+  position: relative;
+
+  z-index: 2;
+
+}
+
+
+
+/* Rotation animation */
+@keyframes rotateGoldBorder {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}

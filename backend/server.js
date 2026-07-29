@@ -19,7 +19,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const USE_DOCKER = process.env.USE_DOCKER !== "false";
 
 const app = express();
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors({
+  origin: [
+    process.env.CLIENT_URL,
+    "http://localhost:5173",
+    "https://py-note-sigma.vercel.app"
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(passport.initialize());
 

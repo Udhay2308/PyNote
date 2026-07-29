@@ -197,7 +197,7 @@ export default function LoginPage({ onSwitch }) {
             marginBottom: "20px",
           }}>
             <img
-              src="/src/assets/logo.png"
+              src="/logo.png"
               alt="Pynote"
               style={{
                 width: "65px",

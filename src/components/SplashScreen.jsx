@@ -120,7 +120,7 @@ export default function SplashScreen({ onDone }) {
         {/* Logo image with shimmer */}
         <div style={{ width: "200px", height: "200px", position: "relative" }}>
           <img
-            src="/src/assets/logo.png"
+            src="/logo.png"
             alt="Pynote"
             style={{
               width: "100%",

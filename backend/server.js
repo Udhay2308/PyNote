@@ -23,7 +23,8 @@ app.use(cors({
   origin: [
     process.env.CLIENT_URL,
     "http://localhost:5173",
-    "https://py-note-sigma.vercel.app"
+    "https://py-note-sigma.vercel.app",
+    "https://py-note-git-main-udhays-projects-c762f318.vercel.app"
   ],
   credentials: true,
 }));

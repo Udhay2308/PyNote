@@ -183,7 +183,23 @@ function Notebook({
         </SortableContext>
       </DndContext>
 
-     
+      <button
+        onClick={addCell}
+        style={{
+          width: "100%",
+          padding: "10px",
+          borderRadius: "8px",
+          border: "1px solid #8B1A1A",
+          background: "#8B1A1A",
+          color: "#fff",
+          cursor: "pointer",
+          fontSize: "15px",
+          fontWeight: "500",
+          marginTop: "8px",
+        }}
+      >
+        + Add Cell
+      </button>
     </div>
   );
 }

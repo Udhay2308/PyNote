@@ -6,7 +6,7 @@ import AuthCallback from "./pages/AuthCallback";
 import Sidebar from "./components/Sidebar";
 import Notebook from "./components/Notebook";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const createNotebook = (name = "Untitled Notebook") => ({
   notebookId: `nb_${Date.now()}`,

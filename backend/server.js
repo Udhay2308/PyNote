@@ -188,10 +188,10 @@ function runInKernel(kernel, code) {
       processQueue(kernel);
       resolve({
         type: "error",
-        content: "Cell execution timed out (60s)",
+        content: "Cell execution timed out (120s)",
         success: false,
       });
-    }, 60000);
+    }, 120000);
   });
 }
 

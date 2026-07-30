@@ -6,6 +6,23 @@ import traceback
 import signal
 import subprocess
 
+HAS_PLT = False
+plt = None
+
+def init_matplotlib():
+    global HAS_PLT, plt
+    if HAS_PLT:
+        return True
+    try:
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt_module
+        plt = plt_module
+        HAS_PLT = True
+        return True
+    except ImportError:
+        return False
+
 def install_package(pkg):
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", pkg, "--break-system-packages"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -15,27 +32,7 @@ def install_package(pkg):
         except Exception:
             pass
 
-def init_matplotlib():
-    global HAS_PLT, plt
-    try:
-        import matplotlib
-        matplotlib.use('Agg')
-        import matplotlib.pyplot as plt_module
-        plt = plt_module
-        HAS_PLT = True
-    except ImportError:
-        install_package("matplotlib")
-        try:
-            import matplotlib
-            matplotlib.use('Agg')
-            import matplotlib.pyplot as plt_module
-            plt = plt_module
-            HAS_PLT = True
-        except Exception:
-            HAS_PLT = False
-
-HAS_PLT = False
-plt = None
+# Non-blocking attempt to load matplotlib if already available
 init_matplotlib()
 
 # Shared globals — variables persist between cell runs

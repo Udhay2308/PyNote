@@ -100,6 +100,15 @@ function startKernel(notebookId) {
       : path.join(__dirname, "docker", "kernel.py");
     const containerName = `kernel_${notebookId}_${randomBytes(4).toString("hex")}`;
 
+    const venvWin = path.join(__dirname, "venv", "Scripts", "python.exe");
+    const venvNix = path.join(__dirname, "venv", "bin", "python3");
+    let pythonExec = process.env.PYTHON_PATH;
+    if (!pythonExec) {
+      if (existsSync(venvNix)) pythonExec = venvNix;
+      else if (existsSync(venvWin)) pythonExec = venvWin;
+      else pythonExec = process.platform === "win32" ? "python" : "python3";
+    }
+
     const proc = USE_DOCKER
       ? spawn("docker", [
           "run", "--rm", "-i",
@@ -110,7 +119,7 @@ function startKernel(notebookId) {
           "python-sandbox",
           "python3", "/kernel.py",
         ])
-      : spawn(process.env.PYTHON_PATH || (process.platform === "win32" ? "python" : "python3"), [kernelPath]);
+      : spawn(pythonExec, [kernelPath]);
 
     const kernel = {
       process: proc,

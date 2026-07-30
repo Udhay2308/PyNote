@@ -47,8 +47,15 @@ def install_package(pkg):
 # Non-blocking attempt to load matplotlib if already available
 init_matplotlib()
 
+def _custom_input(prompt=""):
+    if prompt:
+        print(prompt, end="")
+    raise RuntimeError("Interactive input() is not supported in notebook cells. Please pass values directly in code.")
+
 # Shared globals — variables persist between cell runs
-_globals = {}
+_globals = {
+    "input": _custom_input,
+}
 
 def run_cell(code):
     global HAS_PLT, plt

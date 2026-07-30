@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "render-build": "npm install && npm run build && cd backend && npm install && (python3 -m venv venv || true) && (./venv/bin/pip install --only-binary=:all: matplotlib numpy || venv/Scripts/pip install --only-binary=:all: matplotlib numpy || python3 -m pip install matplotlib numpy --break-system-packages || true)",
+    "render-build": "npm install && npm run build && cd backend && npm install && (python3 -m venv venv || true) && (./venv/bin/pip install --only-binary=:all: numpy pandas matplotlib scikit-learn scipy seaborn requests || venv/Scripts/pip install --only-binary=:all: numpy pandas matplotlib scikit-learn scipy seaborn requests || python3 -m pip install numpy pandas matplotlib scikit-learn scipy seaborn requests --break-system-packages || true)",
     "start": "node backend/server.js",
     "lint": "eslint .",
     "preview": "vite preview"

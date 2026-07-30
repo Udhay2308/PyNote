@@ -23,7 +23,25 @@ def init_matplotlib():
     except ImportError:
         return False
 
+MODULE_MAP = {
+    "sklearn": "scikit-learn",
+    "PIL": "pillow",
+    "cv2": "opencv-python",
+    "bs4": "beautifulsoup4",
+    "yaml": "pyyaml",
+    "skimage": "scikit-image",
+    "mpl_toolkits": "matplotlib",
+    "fitz": "pymupdf",
+    "docx": "python-docx",
+    "pptx": "python-pptx",
+    "wx": "wxpython",
+    "crypto": "pycryptodome",
+    "Crypto": "pycryptodome",
+    "google": "protobuf",
+}
+
 def install_package(pkg):
+    target_pkg = MODULE_MAP.get(pkg, pkg)
     try:
         import pip  # noqa: F401
     except ImportError:
@@ -33,9 +51,9 @@ def install_package(pkg):
             pass
 
     for cmd in [
-        [sys.executable, "-m", "pip", "install", pkg, "--break-system-packages"],
-        [sys.executable, "-m", "pip", "install", pkg, "--user"],
-        [sys.executable, "-m", "pip", "install", pkg],
+        [sys.executable, "-m", "pip", "install", target_pkg, "--break-system-packages"],
+        [sys.executable, "-m", "pip", "install", target_pkg, "--user"],
+        [sys.executable, "-m", "pip", "install", target_pkg],
     ]:
         try:
             subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -47,18 +65,26 @@ def install_package(pkg):
 # Non-blocking attempt to load matplotlib if already available
 init_matplotlib()
 
-def _custom_input(prompt=""):
+_input_count = 0
+
+def _universal_input(prompt=""):
+    global _input_count
+    _input_count += 1
+    if _input_count > 10:
+        raise RuntimeError("Interactive input() limit reached (10 calls per cell).")
+    val = "10"
     if prompt:
-        print(prompt, end="")
-    raise RuntimeError("Interactive input() is not supported in notebook cells. Please pass values directly in code.")
+        print(f"{prompt}{val}")
+    return val
 
 # Shared globals — variables persist between cell runs
 _globals = {
-    "input": _custom_input,
+    "input": _universal_input,
 }
 
 def run_cell(code):
-    global HAS_PLT, plt
+    global HAS_PLT, plt, _input_count
+    _input_count = 0
     if not HAS_PLT:
         init_matplotlib()
 

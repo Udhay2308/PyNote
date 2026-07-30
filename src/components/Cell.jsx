@@ -8,6 +8,7 @@ function Cell({
   updateCell,
   deleteCell,
   runCell,
+  submitInput,
   isRunning,
   dragHandleProps,
   isDragging,
@@ -16,6 +17,7 @@ function Cell({
   const editorRef = useRef(null);
   const containerRef = useRef(null);
   const [editingNotes, setEditingNotes] = useState(false);
+  const [inputValue, setInputValue] = useState("");
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && e.shiftKey) {
@@ -51,6 +53,62 @@ function Cell({
         <pre style={{ color: "#ff5555", margin: 0, whiteSpace: "pre-wrap" }}>
           {cell.output.content}
         </pre>
+      );
+    }
+    if (cell.output.type === "input_request") {
+      return (
+        <div>
+          {cell.output.text && (
+            <pre style={{ margin: "0 0 8px", whiteSpace: "pre-wrap", color: isDark ? "#F5F7FA" : "#111" }}>
+              {cell.output.text}
+            </pre>
+          )}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const val = inputValue;
+              setInputValue("");
+              submitInput(cell.id, val);
+            }}
+            style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4px" }}
+          >
+            <span style={{ color: "#4A90E2", fontWeight: "600", fontSize: "13px" }}>
+              {cell.output.prompt || "Input:"}
+            </span>
+            <input
+              autoFocus
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Type input and press Enter..."
+              style={{
+                flex: 1,
+                padding: "6px 12px",
+                borderRadius: "6px",
+                border: `1px solid ${isDark ? "#384458" : "#ccc"}`,
+                background: isDark ? "#171F2D" : "#fff",
+                color: isDark ? "#fff" : "#111",
+                fontSize: "13px",
+                outline: "none",
+              }}
+            />
+            <button
+              type="submit"
+              disabled={isRunning}
+              style={{
+                padding: "6px 14px",
+                borderRadius: "6px",
+                border: "none",
+                background: "#4A90E2",
+                color: "#fff",
+                fontWeight: "600",
+                fontSize: "13px",
+                cursor: "pointer",
+              }}
+            >
+              Submit
+            </button>
+          </form>
+        </div>
       );
     }
     if (cell.output.type === "image") {

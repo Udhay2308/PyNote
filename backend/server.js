@@ -163,7 +163,7 @@ function startKernel(notebookId) {
   });
 }
 
-function runInKernel(kernel, code) {
+function waitForKernelOutput(kernel) {
   return new Promise((resolve) => {
     let output = "";
     kernel.lastUsed = Date.now();
@@ -176,9 +176,11 @@ function runInKernel(kernel, code) {
           try {
             const result = JSON.parse(line.trim());
             kernel.process.stdout.removeListener("data", onData);
-            kernel.busy = false;
+            if (result.type !== "input_request") {
+              kernel.busy = false;
+              processQueue(kernel);
+            }
             kernel.lastUsed = Date.now();
-            processQueue(kernel);
             resolve(result);
             return;
           } catch {}
@@ -187,9 +189,6 @@ function runInKernel(kernel, code) {
     };
 
     kernel.process.stdout.on("data", onData);
-    const cleanCode = code.replace(/\r\n/g, "\n");
-    kernel.process.stdin.write(cleanCode + "\n__END_CODE__\n");
-    kernel.busy = true;
 
     setTimeout(() => {
       kernel.process.stdout.removeListener("data", onData);
@@ -202,6 +201,13 @@ function runInKernel(kernel, code) {
       });
     }, 120000);
   });
+}
+
+function runInKernel(kernel, code) {
+  const cleanCode = code.replace(/\r\n/g, "\n");
+  kernel.process.stdin.write(cleanCode + "\n__END_CODE__\n");
+  kernel.busy = true;
+  return waitForKernelOutput(kernel);
 }
 
 function processQueue(kernel) {
@@ -328,6 +334,23 @@ app.post("/execute", protect, executeLimiter, async (req, res) => {
       return res.json(result);
     }
     const result = await runInKernel(kernel, code);
+    res.json(result);
+  } catch (err) {
+    res.json({ type: "error", content: err.message, success: false });
+  }
+});
+
+app.post("/input", protect, async (req, res) => {
+  const { input, notebookId } = req.body;
+  const kernel = kernels[notebookId];
+  if (!kernel || !kernel.process) {
+    return res.status(404).json({ type: "error", content: "Kernel not active", success: false });
+  }
+
+  try {
+    const outputPromise = waitForKernelOutput(kernel);
+    kernel.process.stdin.write((input ?? "") + "\n");
+    const result = await outputPromise;
     res.json(result);
   } catch (err) {
     res.json({ type: "error", content: err.message, success: false });

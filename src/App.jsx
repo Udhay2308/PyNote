@@ -289,11 +289,28 @@ const updateCell = (id, value, type, field = "code") => {
       updateCells((cells) =>
         cells.map((c) => (c.id === id ? { ...c, output: data } : c))
       );
+    } finally {
+      setRunning((prev) => ({ ...prev, [id]: false }));
+    }
+  };
+
+  const submitInput = async (id, inputValue) => {
+    setRunning((prev) => ({ ...prev, [id]: true }));
+    try {
+      const response = await fetch(`${API}/input`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ input: inputValue, notebookId: activeId }),
+      });
+      const data = await response.json();
+      updateCells((cells) =>
+        cells.map((c) => (c.id === id ? { ...c, output: data } : c))
+      );
     } catch {
       updateCells((cells) =>
         cells.map((c) =>
           c.id === id
-            ? { ...c, output: { type: "error", content: "Backend connection failed" } }
+            ? { ...c, output: { type: "error", content: "Input submission failed" } }
             : c
         )
       );
@@ -442,6 +459,7 @@ const updateCell = (id, value, type, field = "code") => {
             updateCell={updateCell}
             deleteCell={deleteCell}
             runCell={runCell}
+            submitInput={submitInput}
             reorderCells={reorderCells}
             running={running}
             lastSaved={lastSaved}

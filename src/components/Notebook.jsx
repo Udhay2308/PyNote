@@ -54,6 +54,7 @@ function Notebook({
   updateCell,
   deleteCell,
   runCell,
+  submitInput,
   reorderCells,
   running,
   lastSaved,
@@ -174,6 +175,7 @@ function Notebook({
               updateCell={updateCell}
               deleteCell={deleteCell}
               runCell={runCell}
+              submitInput={submitInput}
               isRunning={!!running[cell.id]}
               isAnyDragging={isAnyDragging}
               isDark={isDark}

@@ -65,43 +65,29 @@ def install_package(pkg):
 # Non-blocking attempt to load matplotlib if already available
 init_matplotlib()
 
-_input_call_count = 0
+def _interactive_input(prompt=""):
+    captured = sys.stdout.getvalue()
+    sys.__stdout__.write(json.dumps({
+        "type": "input_request",
+        "prompt": str(prompt or ""),
+        "text": captured
+    }) + "\n")
+    sys.__stdout__.flush()
 
-def _smart_input(prompt=""):
-    global _input_call_count
-    _input_call_count += 1
-
-    # Smart variable inspector for guessing games / interactive logic
-    target_val = None
-    for k in ["secret", "target", "answer", "number", "solution", "num", "ans"]:
-        if k in _globals and isinstance(_globals[k], (int, float, str)):
-            target_val = str(_globals[k])
-            break
-
-    if target_val is not None and _input_call_count >= 2:
-        val = target_val
-    else:
-        seq = ["10", "15", "5", "20", "1", "0"]
-        val = seq[(_input_call_count - 1) % len(seq)]
-
-    if prompt:
-        print(f"{prompt}{val}")
-    else:
-        print(val)
-
-    if _input_call_count > 10:
-        raise EOFError("Interactive input stream ended")
-
-    return val
+    user_line = sys.__stdin__.readline()
+    if not user_line:
+        return ""
+    clean_val = user_line.rstrip("\r\n")
+    sys.stdout.write(f"{prompt}{clean_val}\n")
+    return clean_val
 
 # Shared globals — variables persist between cell runs
 _globals = {
-    "input": _smart_input,
+    "input": _interactive_input,
 }
 
 def run_cell(code):
-    global HAS_PLT, plt, _input_call_count
-    _input_call_count = 0
+    global HAS_PLT, plt
     if not HAS_PLT:
         init_matplotlib()
 

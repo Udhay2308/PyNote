@@ -108,11 +108,17 @@ function Notebook({
 
       {/* Toolbar */}
       <div style={{
+        position: "sticky",
+        top: "-24px",
+        zIndex: 100,
+        background: isDark ? "#141414" : "#ffffff",
+        padding: "16px 0",
         display: "flex",
         alignItems: "center",
         gap: "10px",
         marginBottom: "16px",
         flexWrap: "wrap",
+        borderBottom: `1px solid ${isDark ? "#293243" : "#e0e0e0"}`,
       }}>
         {isEditingTitle ? (
           <input

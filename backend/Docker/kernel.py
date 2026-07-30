@@ -4,21 +4,48 @@ import base64
 import io
 import traceback
 import signal
+import subprocess
 
-# Setup matplotlib
-try:
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    HAS_PLT = True
-except ImportError:
-    HAS_PLT = False
+def install_package(pkg):
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", pkg, "--break-system-packages"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", pkg], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception:
+            pass
+
+def init_matplotlib():
+    global HAS_PLT, plt
+    try:
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt_module
+        plt = plt_module
+        HAS_PLT = True
+    except ImportError:
+        install_package("matplotlib")
+        try:
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt_module
+            plt = plt_module
+            HAS_PLT = True
+        except Exception:
+            HAS_PLT = False
+
+HAS_PLT = False
+plt = None
+init_matplotlib()
 
 # Shared globals — variables persist between cell runs
 _globals = {}
 
 def run_cell(code):
-    # Redirect stdout/stderr
+    global HAS_PLT, plt
+    if not HAS_PLT:
+        init_matplotlib()
+
     old_stdout = sys.stdout
     old_stderr = sys.stderr
     sys.stdout = io.StringIO()
@@ -27,11 +54,22 @@ def run_cell(code):
     result = {}
 
     try:
-        exec(compile(code, '<cell>', 'exec'), _globals)
+        try:
+            exec(compile(code, '<cell>', 'exec'), _globals)
+        except ModuleNotFoundError as err:
+            missing_pkg = err.name.split('.')[0] if err.name else None
+            if missing_pkg:
+                install_package(missing_pkg)
+                if missing_pkg == "matplotlib":
+                    init_matplotlib()
+                exec(compile(code, '<cell>', 'exec'), _globals)
+            else:
+                raise err
+
         stdout = sys.stdout.getvalue()
 
         # Check for matplotlib figure
-        if HAS_PLT and plt.get_fignums():
+        if HAS_PLT and plt and plt.get_fignums():
             buf = io.BytesIO()
             plt.savefig(buf, format='png', bbox_inches='tight')
             plt.close('all')

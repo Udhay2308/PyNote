@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "render-build": "npm install && npm run build && cd backend && npm install && (python3 -m pip install matplotlib || true)",
+    "render-build": "npm install && npm run build && cd backend && npm install && (python3 -m pip install matplotlib --break-system-packages || pip3 install matplotlib || true)",
     "start": "node backend/server.js",
     "lint": "eslint .",
     "preview": "vite preview"

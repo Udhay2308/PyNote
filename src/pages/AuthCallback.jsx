@@ -29,7 +29,7 @@ export default function AuthCallback() {
     } else {
       window.location.href = "/login";
     }
-  }, []);
+  }, [login]);
 
   return (
     <div style={{

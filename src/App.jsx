@@ -31,21 +31,29 @@ function App() {
   const [running, setRunning] = useState({});
   const [lastSaved, setLastSaved] = useState(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => Boolean(token));
 
   // Auth headers helper
-  const authHeaders = () => ({
+  const authHeaders = useCallback(() => ({
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
+  }), [token]);
+
+  // Ensures every cell has both `code` and `markdown` fields,
+  // even for notebooks saved before the markdown field existed.
+  const normalizeNotebook = (nb) => ({
+    ...nb,
+    cells: (nb.cells || []).map((c) => ({
+      ...c,
+      code: c.code ?? "",
+      markdown: c.markdown ?? "",
+    })),
   });
 
   // ── Load notebooks on startup (only when logged in) ───────────────────
 
   useEffect(() => {
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    if (!token) return;
 
     const loadNotebooks = async () => {
       try {
@@ -88,7 +96,7 @@ function App() {
     };
 
     loadNotebooks();
-  }, [token]);
+  }, [token, authHeaders]);
 
   // Load full notebook when switching to one with empty cells
   useEffect(() => {
@@ -104,22 +112,11 @@ function App() {
         })
         .catch((err) => console.error("Failed to load notebook:", err));
     }
-  }, [activeId]);
+  }, [activeId, token, notebooks, authHeaders]);
 
   useEffect(() => {
     localStorage.setItem("theme", isDark ? "dark" : "light");
   }, [isDark]);
-
-  // Ensures every cell has both `code` and `markdown` fields,
-  // even for notebooks saved before the markdown field existed.
-  const normalizeNotebook = (nb) => ({
-    ...nb,
-    cells: (nb.cells || []).map((c) => ({
-      ...c,
-      code: c.code ?? "",
-      markdown: c.markdown ?? "",
-    })),
-  });
 
   const saveNotebook = useCallback(async (notebook) => {
     if (!token) return;
@@ -133,7 +130,7 @@ function App() {
     } catch (err) {
       console.error("Save failed:", err);
     }
-  }, [token]);
+  }, [token, authHeaders]);
 
   const activeNotebook = notebooks.find((nb) => nb.notebookId === activeId);
 
@@ -203,7 +200,7 @@ function App() {
       const saved = await res.json();
       setNotebooks((prev) => [...prev, normalizeNotebook(saved)]);
       setActiveId(saved.notebookId);
-    } catch (err) {
+    } catch {
       alert("Failed to import notebook.");
     }
   };
@@ -214,11 +211,12 @@ function App() {
     );
   };
 
-  useEffect(() => {
-    if (!isEditingTitle && activeNotebook) {
+  const handleSetIsEditingTitle = useCallback((editing) => {
+    setIsEditingTitle(editing);
+    if (!editing && activeNotebook) {
       saveNotebook(activeNotebook);
     }
-  }, [isEditingTitle]);
+  }, [activeNotebook, saveNotebook]);
 
   // ── Cell helpers ──────────────────────────────────────────────────────
 
@@ -268,7 +266,7 @@ const updateCell = (id, value, type, field = "code") => {
         return updated;
       })
     );
-  }, [activeId]);
+  }, [activeId, saveNotebook]);
 
   // ── Run cell ──────────────────────────────────────────────────────────
 
@@ -438,7 +436,7 @@ const updateCell = (id, value, type, field = "code") => {
             title={activeNotebook.title}
             setTitle={setTitle}
             isEditingTitle={isEditingTitle}
-            setIsEditingTitle={setIsEditingTitle}
+            setIsEditingTitle={handleSetIsEditingTitle}
             cells={activeNotebook.cells}
             addCell={addCell}
             updateCell={updateCell}

@@ -45,7 +45,6 @@ function SortableCell(props) {
 }
 
 function Notebook({
-  notebookId,
   title,
   setTitle,
   isEditingTitle,

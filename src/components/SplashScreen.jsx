@@ -71,7 +71,7 @@ export default function SplashScreen({ onDone }) {
     }
 
     run();
-  }, []);
+  }, [onDone]);
 
   return (
     <div

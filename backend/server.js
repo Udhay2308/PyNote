@@ -353,6 +353,15 @@ app.get("/health", (req, res) => {
   });
 });
 
+// ── Serve Frontend Static Files (Single Deployment Mode) ───────────────────
+const distPath = path.join(__dirname, "..", "dist");
+if (existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
+}
+
 process.on("SIGINT", () => {
   console.log("Shutting down — killing all kernels...");
   Object.values(kernels).forEach((k) => { try { k.process.kill(); } catch {} });

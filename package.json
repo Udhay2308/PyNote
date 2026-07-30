@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "render-build": "npm install && npm run build && cd backend && npm install",
+    "start": "node backend/server.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

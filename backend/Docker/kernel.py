@@ -25,12 +25,24 @@ def init_matplotlib():
 
 def install_package(pkg):
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", pkg, "--break-system-packages"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    except Exception:
+        import pip  # noqa: F401
+    except ImportError:
         try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", pkg], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.check_call([sys.executable, "-m", "ensurepip", "--default-pip"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except Exception:
             pass
+
+    for cmd in [
+        [sys.executable, "-m", "pip", "install", pkg, "--break-system-packages"],
+        [sys.executable, "-m", "pip", "install", pkg, "--user"],
+        [sys.executable, "-m", "pip", "install", pkg],
+    ]:
+        try:
+            subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return True
+        except Exception:
+            continue
+    return False
 
 # Non-blocking attempt to load matplotlib if already available
 init_matplotlib()

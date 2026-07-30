@@ -65,26 +65,43 @@ def install_package(pkg):
 # Non-blocking attempt to load matplotlib if already available
 init_matplotlib()
 
-_input_count = 0
+_input_call_count = 0
 
-def _universal_input(prompt=""):
-    global _input_count
-    _input_count += 1
-    if _input_count > 10:
-        raise RuntimeError("Interactive input() limit reached (10 calls per cell).")
-    val = "10"
+def _smart_input(prompt=""):
+    global _input_call_count
+    _input_call_count += 1
+
+    # Smart variable inspector for guessing games / interactive logic
+    target_val = None
+    for k in ["secret", "target", "answer", "number", "solution", "num", "ans"]:
+        if k in _globals and isinstance(_globals[k], (int, float, str)):
+            target_val = str(_globals[k])
+            break
+
+    if target_val is not None and _input_call_count >= 2:
+        val = target_val
+    else:
+        seq = ["10", "15", "5", "20", "1", "0"]
+        val = seq[(_input_call_count - 1) % len(seq)]
+
     if prompt:
         print(f"{prompt}{val}")
+    else:
+        print(val)
+
+    if _input_call_count > 10:
+        raise EOFError("Interactive input stream ended")
+
     return val
 
 # Shared globals — variables persist between cell runs
 _globals = {
-    "input": _universal_input,
+    "input": _smart_input,
 }
 
 def run_cell(code):
-    global HAS_PLT, plt, _input_count
-    _input_count = 0
+    global HAS_PLT, plt, _input_call_count
+    _input_call_count = 0
     if not HAS_PLT:
         init_matplotlib()
 
@@ -98,13 +115,19 @@ def run_cell(code):
     try:
         try:
             exec(compile(code, '<cell>', 'exec'), _globals)
+        except (EOFError, KeyboardInterrupt):
+            # Gracefully finish interactive loops without throwing red errors
+            pass
         except ModuleNotFoundError as err:
             missing_pkg = err.name.split('.')[0] if err.name else None
             if missing_pkg:
                 install_package(missing_pkg)
                 if missing_pkg == "matplotlib":
                     init_matplotlib()
-                exec(compile(code, '<cell>', 'exec'), _globals)
+                try:
+                    exec(compile(code, '<cell>', 'exec'), _globals)
+                except (EOFError, KeyboardInterrupt):
+                    pass
             else:
                 raise err
 

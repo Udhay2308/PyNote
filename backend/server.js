@@ -19,6 +19,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const USE_DOCKER = process.env.USE_DOCKER === "true";
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(cors({
   origin: [
     process.env.CLIENT_URL,
@@ -35,29 +36,28 @@ console.log(`Running in ${USE_DOCKER ? "Docker (secure)" : "Direct Python (free)
 
 // ── Rate Limiting ─────────────────────────────────────────────────────────
 
-// General limit — 100 requests per 15 minutes per IP
+// General limit — 1500 requests per 15 minutes per IP
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { error: "Too many requests. Please try again after 15 minutes." },
+  max: 1500,
+  message: { error: "Too many requests. Please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
 // Auth limit — prevent brute force attacks
-// Only 10 login/register attempts per 15 minutes per IP
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 30,
   message: { error: "Too many login attempts. Please try again after 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Execute limit — max 30 cell runs per minute per IP
+// Execute limit — max 120 cell runs per minute per IP
 const executeLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 30,
+  max: 120,
   message: { error: "Too many code executions. Please slow down." },
   standardHeaders: true,
   legacyHeaders: false,

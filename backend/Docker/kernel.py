@@ -65,8 +65,8 @@ if __name__ == '__main__':
                 line = sys.stdin.readline()
                 if not line:
                     sys.exit(0)
-                line = line.rstrip('\n')
-                if line == '__END_CODE__':
+                line = line.rstrip('\r\n')
+                if line.strip() == '__END_CODE__':
                     break
                 lines.append(line)
 

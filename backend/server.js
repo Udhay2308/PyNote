@@ -108,7 +108,7 @@ function startKernel(notebookId) {
           "python-sandbox",
           "python3", "/kernel.py",
         ])
-      : spawn("python", [kernelPath]);
+      : spawn(process.env.PYTHON_PATH || (process.platform === "win32" ? "python" : "python3"), [kernelPath]);
 
     const kernel = {
       process: proc,
@@ -176,7 +176,8 @@ function runInKernel(kernel, code) {
     };
 
     kernel.process.stdout.on("data", onData);
-    kernel.process.stdin.write(code + "\n__END_CODE__\n");
+    const cleanCode = code.replace(/\r\n/g, "\n");
+    kernel.process.stdin.write(cleanCode + "\n__END_CODE__\n");
     kernel.busy = true;
 
     setTimeout(() => {

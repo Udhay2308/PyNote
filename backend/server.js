@@ -16,7 +16,7 @@ import { protect } from "./middleware/auth.js";
 dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const USE_DOCKER = process.env.USE_DOCKER !== "false";
+const USE_DOCKER = process.env.USE_DOCKER === "true";
 
 const app = express();
 app.use(cors({
@@ -95,7 +95,9 @@ function startKernel(notebookId) {
       return reject(new Error(`Server at capacity (${MAX_KERNELS} kernels). Try again later.`));
     }
 
-    const kernelPath = path.join(__dirname, "docker", "kernel.py");
+    const kernelPath = existsSync(path.join(__dirname, "Docker", "kernel.py"))
+      ? path.join(__dirname, "Docker", "kernel.py")
+      : path.join(__dirname, "docker", "kernel.py");
     const containerName = `kernel_${notebookId}_${randomBytes(4).toString("hex")}`;
 
     const proc = USE_DOCKER

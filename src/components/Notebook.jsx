@@ -151,7 +151,7 @@ function Notebook({
               margin: 0,
             }}
           >
-            {title} <span style={{ fontSize: "14px", color: "#888" }}>✏️</span>
+            {title}
           </h1>
         )}
 

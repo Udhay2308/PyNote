@@ -440,8 +440,8 @@ function Sidebar({ notebooks, activeId, onSelect, onAdd, onDelete, onImport, onL
                         top: "calc(100% + 4px)",
                         right: 0,
                         zIndex: 200,
-                        background: isDark ? "#8B1A1A" : "#D1D5DB",
-                        border: `1px solid ${border}`,
+                        background: "#8B1A1A",
+                        border: `1px solid rgba(255, 255, 255, 0.15)`,
                         borderRadius: "10px",
                         padding: "4px",
                         minWidth: "160px",
@@ -462,7 +462,7 @@ function Sidebar({ notebooks, activeId, onSelect, onAdd, onDelete, onImport, onL
                               background: "transparent",
                               border: "none",
                               borderRadius: "7px",
-                              color: "#EF4444",
+                              color: "#ffffff",
                               fontSize: "13px",
                               fontWeight: "500",
                               cursor: "pointer",
@@ -472,7 +472,7 @@ function Sidebar({ notebooks, activeId, onSelect, onAdd, onDelete, onImport, onL
                               gap: "8px",
                               transition: "background 0.15s",
                             }}
-                            onMouseEnter={e => e.currentTarget.style.background = "rgba(239,68,68,0.1)"}
+                            onMouseEnter={e => e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)"}
                             onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                           >
                             Delete notebook
@@ -487,7 +487,7 @@ function Sidebar({ notebooks, activeId, onSelect, onAdd, onDelete, onImport, onL
                             background: "transparent",
                             border: "none",
                             borderRadius: "7px",
-                            color: "#9AA4B2",
+                            color: "#ffffff",
                             fontSize: "13px",
                             cursor: "pointer",
                             textAlign: "left",
@@ -496,10 +496,10 @@ function Sidebar({ notebooks, activeId, onSelect, onAdd, onDelete, onImport, onL
                             gap: "8px",
                             transition: "background 0.15s",
                           }}
-                          onMouseEnter={e => e.currentTarget.style.background = isDark ? "#202B3A" : "#f5f5f5"}
+                          onMouseEnter={e => e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)"}
                           onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                         >
-                          ✕ Cancel
+                          Cancel
                         </button>
                       </div>
                     )}
